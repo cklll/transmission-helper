@@ -1,6 +1,6 @@
 package main
 
-import "os/exec"
+// import "os/exec"
 import "log"
 import "strings"
 // import "bufio"
@@ -35,8 +35,6 @@ func parseRawOutput(output string) []TorrentState {
 		name := line[namePosition:]
 		name = strings.Trim(name, " ")
 
-		log.Println(status)
-		log.Println(name)
 		states = append(states, TorrentState{name, status})
 	}
 
