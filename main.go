@@ -1,6 +1,5 @@
 package main
 
-// import "os/exec"
 import "log"
 import "strings"
 
@@ -75,7 +74,8 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 			result = append(result, states...)
 		}
 
-		log.Printf("Found %v torrents with %v state.", len(states), status)
+		// TODO: want to test this but not sure how
+		log.Printf("Found %v torrents with %v status.", len(states), status)
 	}
 
 	return result
@@ -83,18 +83,16 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 
 func main() {
 	log.Println("tranmission-helper started.")
+
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println("tranmission-helper exited with error.", r)
 		} else {
 			log.Println("tranmission-helper completed successfully.")
 		}
-
 	}()
 
 	// output := getRawTorrentStates()
-
-
 	output := strings.Trim(`
 ID     Done       Have  ETA           Up    Down  Ratio  Status       Name
 	 29    53%    3.42 GB  Unknown      0.0     0.0    0.0  Idle         test
@@ -109,7 +107,5 @@ Sum:           7.63 GB               0.0     0.0
 	_ = finishedTorrents
 
 	// notify(finishedTorrents)
-	// logNotify(finishedTorrents)
 	// delete(finishedTorrents)
-	// logDelete(finishedTorrents)
 }

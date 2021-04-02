@@ -68,7 +68,3 @@ func TestFilterFinishedTorrentsNoneFinished(t *testing.T) {
 
 	assert.Equal(t, want, result)
 }
-
-func TestFilterFinishedTorrentsLogAllStates(t *testing.T) {
-	// TODO
-}
