@@ -20,7 +20,7 @@ Sum:           7.63 GB               0.0     0.0
 		{"test 2", "Stopped"},
 	}
 
-	assert.Equal(t, torrentStates, want)
+	assert.Equal(t, want, torrentStates)
 }
 
 func TestParseRawOutputNoTorrent(t *testing.T) {
@@ -33,5 +33,42 @@ Sum:           7.63 GB               0.0     0.0
 	torrentStates := parseRawOutput(output)
 	want := []TorrentState{}
 
-	assert.Equal(t, torrentStates, want)
+	assert.Equal(t, want, torrentStates)
+}
+
+func TestFilterFinishedTorrents(t *testing.T) {
+	input := []TorrentState{
+		{"idle seed", "Idle"},
+		{"stopped 1", "Stopped"},
+		{"stopped 2", "Stopped"},
+		{"Seeding 1", "Seeding"},
+		{"Seeding 2", "Seeding"},
+		{"Finished 1", "Finished"},
+	}
+	want := []TorrentState{
+		{"Seeding 1", "Seeding"},
+		{"Seeding 2", "Seeding"},
+		{"Finished 1", "Finished"},
+	}
+
+	result := filterFinishedTorrents(input)
+
+	assert.Equal(t, want, result)
+}
+
+func TestFilterFinishedTorrentsNoneFinished(t *testing.T) {
+	input := []TorrentState{
+		{"idle seed", "Idle"},
+		{"stopped 1", "Stopped"},
+		{"stopped 2", "Stopped"},
+	}
+	want := []TorrentState{}
+
+	result := filterFinishedTorrents(input)
+
+	assert.Equal(t, want, result)
+}
+
+func TestFilterFinishedTorrentsLogAllStates(t *testing.T) {
+	// TODO
 }
