@@ -1,9 +1,7 @@
 package main
 
-// import "os/exec"
 import "log"
 import "strings"
-// import "bufio"
 
 type TorrentState struct {
 	Name string
@@ -56,20 +54,45 @@ func parseRawOutput(output string) []TorrentState {
 // 	return string(stdout)
 // }
 
+
+func filterFinishedTorrents(states []TorrentState) []TorrentState {
+	stateMap := map[string][]TorrentState{}
+
+	for _, state := range states {
+		stateMap[state.Status] = append(stateMap[state.Status], state)
+	}
+
+	result := []TorrentState{}
+	for status, states := range stateMap {
+		// TODO: haven't manually verified the keywords
+		// maybe instead check "Done" percentage
+		// "Finished" - https://github.com/transmission/transmission/blob/8566df069899ce8923463cadeb0ff66d4544991a/utils/remote.c#L844
+		// "Seeding" - https://github.com/transmission/transmission/blob/8566df069899ce8923463cadeb0ff66d4544991a/utils/remote.c#L898
+		if status == "Finished" {
+			result = append(result, states...)
+		} else if status == "Seeding" {
+			result = append(result, states...)
+		}
+
+		// TODO: want to test this but not sure how
+		log.Printf("Found %v torrents with %v status.", len(states), status)
+	}
+
+	return result
+}
+
 func main() {
 	log.Println("tranmission-helper started.")
+
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println("tranmission-helper exited with error.", r)
 		} else {
 			log.Println("tranmission-helper completed successfully.")
 		}
-
 	}()
 
 	// output := getRawTorrentStates()
-
-
 	output := strings.Trim(`
 ID     Done       Have  ETA           Up    Down  Ratio  Status       Name
 	 29    53%    3.42 GB  Unknown      0.0     0.0    0.0  Idle         test
@@ -80,10 +103,9 @@ Sum:           7.63 GB               0.0     0.0
 	torrentStates := parseRawOutput(output)
 	log.Printf("Found %v torrents", len(torrentStates))
 
-	// finishedTorrents = filterFinishedTorrents(torrentStates)
+	finishedTorrents := filterFinishedTorrents(torrentStates)
+	_ = finishedTorrents
 
 	// notify(finishedTorrents)
-	// logNotify(finishedTorrents)
 	// delete(finishedTorrents)
-	// logDelete(finishedTorrents)
 }
