@@ -53,7 +53,7 @@ func TestFilterFinishedTorrents(t *testing.T) {
 
 	result := filterFinishedTorrents(input)
 
-	assert.Equal(t, want, result)
+	assert.ElementsMatch(t, want, result)
 }
 
 func TestFilterFinishedTorrentsNoneFinished(t *testing.T) {

@@ -1,7 +1,11 @@
 package main
 
-import "log"
-import "strings"
+import (
+	"log"
+	"strings"
+	"os"
+	"fmt"
+)
 
 type TorrentState struct {
 	Name string
@@ -81,6 +85,29 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 	return result
 }
 
+func notify(finishedTorrentStates []TorrentState) {
+	log.Printf("Sending emails with %v finished torrents.", len(finishedTorrentStates))
+
+	recipientsString := os.Getenv("TH_NOTIFY_EMAILS")
+	recipients := strings.Split(recipientsString, ",")
+
+	subject := fmt.Sprintf("[transmission-helper] %v torrents completed.", len(finishedTorrentStates))
+	message := ""
+	for _, state := range finishedTorrentStates {
+		message += fmt.Sprintf("%v: %v \r\n", state.Status, state.Name)
+	}
+
+	mailConfig := getMailConfig()
+
+	err := sendMail(mailConfig, subject, message, recipients)
+	if err != nil {
+		log.Println("Failed to send emails.")
+		log.Println(err)
+	} else {
+		log.Printf("Sent emails to %v recipients.", len(recipients))
+	}
+}
+
 func main() {
 	log.Println("tranmission-helper started.")
 
@@ -94,9 +121,10 @@ func main() {
 
 	// output := getRawTorrentStates()
 	output := strings.Trim(`
-ID     Done       Have  ETA           Up    Down  Ratio  Status       Name
-	 29    53%    3.42 GB  Unknown      0.0     0.0    0.0  Idle         test
-	 30    n/a    4.21 GB  Done         0.0     0.0   None  Stopped      test 2
+ID     Done       Have  ETA           Up    Down  Ratio   Status       Name
+   29    53%    3.42 GB  Unknown      0.0     0.0    0.0  Idle         test
+   30    n/a    4.21 GB  Done         0.0     0.0   None  Stopped      test 2
+   31    n/a    4.21 GB  Done         0.0     0.0   None  Finished     test 3
 Sum:           7.63 GB               0.0     0.0
 `, "\n")
 
@@ -104,8 +132,11 @@ Sum:           7.63 GB               0.0     0.0
 	log.Printf("Found %v torrents", len(torrentStates))
 
 	finishedTorrents := filterFinishedTorrents(torrentStates)
-	_ = finishedTorrents
 
-	// notify(finishedTorrents)
+	if len(finishedTorrents) == 0 {
+		return
+	}
+
+	notify(finishedTorrents)
 	// delete(finishedTorrents)
 }

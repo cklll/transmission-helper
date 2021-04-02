@@ -15,7 +15,7 @@ A tool that automate my routine operations with [transmission](https://github.co
 docker-compose up -d
 docker-compose exec app /bin/sh
 
-go run main.go
+go run .
 ```
 
 ### Run Test
