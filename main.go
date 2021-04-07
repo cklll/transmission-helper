@@ -1,7 +1,12 @@
 package main
 
-import "log"
-import "strings"
+import (
+	"log"
+	"strings"
+	"os"
+	"fmt"
+	"net/smtp"
+)
 
 type TorrentState struct {
 	Name string
@@ -64,6 +69,12 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 
 	result := []TorrentState{}
 	for status, states := range stateMap {
+		// !!!!! FIXME !!!!
+		// TODO: Need to fix, when in "seeding to 0 of 0 peers"
+		// the output is
+		// 30   100%    5.39 GB  Done         0.0     0.0    0.0  Idle
+		// We MUST use "Done: 100%" to check
+
 		// TODO: haven't manually verified the keywords
 		// maybe instead check "Done" percentage
 		// "Finished" - https://github.com/transmission/transmission/blob/8566df069899ce8923463cadeb0ff66d4544991a/utils/remote.c#L844
@@ -81,6 +92,32 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 	return result
 }
 
+// TODO: TEST CASE!!!!
+// Need refactoring to make this testable
+func notify(finishedTorrentStates []TorrentState) {
+	log.Printf("Sending emails with %v finished torrents.", len(finishedTorrentStates))
+
+	recipientsString := os.Getenv("TH_NOTIFY_EMAILS")
+	recipients := strings.Split(recipientsString, ",")
+
+	subject := fmt.Sprintf("[transmission-helper] %v torrents completed.", len(finishedTorrentStates))
+	message := ""
+	for _, state := range finishedTorrentStates {
+		message += fmt.Sprintf("%v: %v \r\n", state.Status, state.Name)
+	}
+
+	mailNotifier := MailNotifier{smtp.SendMail}
+	mailConfig := mailNotifier.GetMailConfig()
+	err := mailNotifier.Send(mailConfig, subject, message, recipients)
+	if err != nil {
+		log.Println("Failed to send emails.")
+		log.Println(err)
+	} else {
+		log.Printf("Sent emails to %v recipients.", len(recipients))
+	}
+}
+
+// TODO: TEST CASE!!!!
 func main() {
 	log.Println("tranmission-helper started.")
 
@@ -94,9 +131,10 @@ func main() {
 
 	// output := getRawTorrentStates()
 	output := strings.Trim(`
-ID     Done       Have  ETA           Up    Down  Ratio  Status       Name
-	 29    53%    3.42 GB  Unknown      0.0     0.0    0.0  Idle         test
-	 30    n/a    4.21 GB  Done         0.0     0.0   None  Stopped      test 2
+ID     Done       Have  ETA           Up    Down  Ratio   Status       Name
+   29    53%    3.42 GB  Unknown      0.0     0.0    0.0  Idle         test
+   30    n/a    4.21 GB  Done         0.0     0.0   None  Stopped      test 2
+   31    n/a    4.21 GB  Done         0.0     0.0   None  Finished     test 3
 Sum:           7.63 GB               0.0     0.0
 `, "\n")
 
@@ -104,8 +142,11 @@ Sum:           7.63 GB               0.0     0.0
 	log.Printf("Found %v torrents", len(torrentStates))
 
 	finishedTorrents := filterFinishedTorrents(torrentStates)
-	_ = finishedTorrents
 
-	// notify(finishedTorrents)
+	if len(finishedTorrents) == 0 {
+		return
+	}
+
+	notify(finishedTorrents)
 	// delete(finishedTorrents)
 }

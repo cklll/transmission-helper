@@ -6,5 +6,27 @@ services:
     working_dir: /usr/src/transmission-helper
     stdin_open: true
     tty: true
+    depends_on:
+      - mailhog
+    environment:
+      TH_SMTP_HOST: mailhog
+      TH_SMTP_PORT: 1025
+      TH_SMTP_NON_SECURE: 1
+      TH_SMTP_USER: ""
+      TH_SMTP_PASS: ""
+      TH_SMTP_SENDER_EMAIL: test_sender@email.com
+      TH_NOTIFY_EMAILS: test_receiver1@example.com,test_receiver2@example.com
     volumes:
       - .:/usr/src/transmission-helper
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+    environment:
+      MH_AUTH_FILE: /opt/mailhog_auth_file.txt
+    volumes:
+      # mailhog_user
+      # mailhog_pass
+      - ./mailhog_auth_file.txt:/opt/mailhog_auth_file.txt
