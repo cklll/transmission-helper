@@ -28,7 +28,12 @@ type MailConfig struct {
 	SenderName string
 }
 
-func getMailConfig() MailConfig {
+
+type MailNotifier struct {
+	SendMail func(addr string, auth smtp.Auth, from string, to []string, msg []byte) error
+}
+
+func (notifier MailNotifier) GetMailConfig() MailConfig {
 	_, isNonSmtpSecure := os.LookupEnv("TH_SMTP_NON_SECURE")
 	return MailConfig{
 		SmtpUser: os.Getenv("TH_SMTP_USER"),
@@ -41,7 +46,7 @@ func getMailConfig() MailConfig {
 	}
 }
 
-func sendMail(config MailConfig, subject string, message string, recipients []string) error {
+func (notifier MailNotifier) Send(config MailConfig, subject string, message string, recipients []string) error {
 	plainAuth := smtp.PlainAuth("", config.SmtpUser, config.SmtpPassword, config.SmtpHost)
 	addr := fmt.Sprintf("%v:%v", config.SmtpHost, config.SmtpPort)
 	var err error
@@ -55,10 +60,10 @@ func sendMail(config MailConfig, subject string, message string, recipients []st
 
 	if config.IsNonSmtpSecure {
 		auth := UnencryptedAuth {plainAuth}
-		err = smtp.SendMail(addr, auth, config.SenderEmail, recipients, []byte(body))
+		err = notifier.SendMail(addr, auth, config.SenderEmail, recipients, []byte(body))
 	} else {
 		auth := plainAuth
-		err = smtp.SendMail(addr, auth, config.SenderEmail, recipients, []byte(body))
+		err = notifier.SendMail(addr, auth, config.SenderEmail, recipients, []byte(body))
 	}
 
 	return err

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"os"
 	"fmt"
+	"net/smtp"
 )
 
 type TorrentState struct {
@@ -68,6 +69,12 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 
 	result := []TorrentState{}
 	for status, states := range stateMap {
+		// !!!!! FIXME !!!!
+		// TODO: Need to fix, when in "seeding to 0 of 0 peers"
+		// the output is
+		// 30   100%    5.39 GB  Done         0.0     0.0    0.0  Idle
+		// We MUST use "Done: 100%" to check
+
 		// TODO: haven't manually verified the keywords
 		// maybe instead check "Done" percentage
 		// "Finished" - https://github.com/transmission/transmission/blob/8566df069899ce8923463cadeb0ff66d4544991a/utils/remote.c#L844
@@ -85,6 +92,8 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 	return result
 }
 
+// TODO: TEST CASE!!!!
+// Need refactoring to make this testable
 func notify(finishedTorrentStates []TorrentState) {
 	log.Printf("Sending emails with %v finished torrents.", len(finishedTorrentStates))
 
@@ -97,9 +106,9 @@ func notify(finishedTorrentStates []TorrentState) {
 		message += fmt.Sprintf("%v: %v \r\n", state.Status, state.Name)
 	}
 
-	mailConfig := getMailConfig()
-
-	err := sendMail(mailConfig, subject, message, recipients)
+	mailNotifier := MailNotifier{smtp.SendMail}
+	mailConfig := mailNotifier.GetMailConfig()
+	err := mailNotifier.Send(mailConfig, subject, message, recipients)
 	if err != nil {
 		log.Println("Failed to send emails.")
 		log.Println(err)
@@ -108,6 +117,7 @@ func notify(finishedTorrentStates []TorrentState) {
 	}
 }
 
+// TODO: TEST CASE!!!!
 func main() {
 	log.Println("tranmission-helper started.")
 
