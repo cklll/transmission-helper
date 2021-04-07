@@ -1,15 +1,15 @@
 package main
 
 import (
-	"log"
-	"strings"
-	"os"
 	"fmt"
+	"log"
 	"net/smtp"
+	"os"
+	"strings"
 )
 
 type TorrentState struct {
-	Name string
+	Name   string
 	Status string
 }
 
@@ -24,13 +24,12 @@ type TorrentState struct {
 func parseRawOutput(output string) []TorrentState {
 	states := []TorrentState{}
 
-
 	lines := strings.Split(output, "\n")
 	headerLine := lines[0]
 	statusPosition := strings.Index(headerLine, "Status")
 	namePosition := strings.Index(headerLine, "Name")
 
-	lines = lines[1:len(lines)-1]
+	lines = lines[1 : len(lines)-1]
 	for _, line := range lines {
 		status := line[statusPosition:namePosition]
 		status = strings.Trim(status, " ")
@@ -58,7 +57,6 @@ func parseRawOutput(output string) []TorrentState {
 
 // 	return string(stdout)
 // }
-
 
 func filterFinishedTorrents(states []TorrentState) []TorrentState {
 	stateMap := map[string][]TorrentState{}
