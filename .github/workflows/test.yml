@@ -3,15 +3,27 @@ on: [push]
 
 jobs:
   test:
-    name: Build docker image and run test suite
+    name: Run test suite
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Build docker images
-      run: docker-compose build
+      - name: Build docker images
+        run: docker-compose build
 
-    - name: Run tests
-      run: docker-compose run app sh -c 'go test -v'
+      - name: Run tests
+        run: docker-compose run app sh -c 'go test -v'
+
+  lint:
+    name: Run linter (gofmt)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build docker images
+        run: docker-compose build
+
+      - name: Run gofmt
+        run: docker-compose run app sh -c 'test -z "$(gofmt -l .)"'

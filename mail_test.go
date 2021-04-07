@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/stretchr/testify/assert"
+	"net/smtp"
 	"os"
 	"testing"
-	"net/smtp"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGetMailConfig(t *testing.T) {
@@ -16,13 +16,13 @@ func TestGetMailConfig(t *testing.T) {
 	os.Setenv("TH_SMTP_SENDER_EMAIL", "test@sender.com")
 
 	want := MailConfig{
-		SmtpUser: "test_user",
-		SmtpPassword: "test_password",
-		SmtpHost: "test_host",
-		SmtpPort: "1234",
+		SmtpUser:        "test_user",
+		SmtpPassword:    "test_password",
+		SmtpHost:        "test_host",
+		SmtpPort:        "1234",
 		IsNonSmtpSecure: false,
-		SenderEmail: "test@sender.com",
-		SenderName: "tranmission-helper",
+		SenderEmail:     "test@sender.com",
+		SenderName:      "tranmission-helper",
 	}
 	result := MailNotifier{}.GetMailConfig()
 
@@ -39,13 +39,13 @@ func TestGetMailConfigSetNonSecure(t *testing.T) {
 	os.Setenv("TH_SMTP_NON_SECURE", "1")
 
 	want := MailConfig{
-		SmtpUser: "test_user",
-		SmtpPassword: "test_password",
-		SmtpHost: "test_host",
-		SmtpPort: "1234",
+		SmtpUser:        "test_user",
+		SmtpPassword:    "test_password",
+		SmtpHost:        "test_host",
+		SmtpPort:        "1234",
 		IsNonSmtpSecure: true,
-		SenderEmail: "test@sender.com",
-		SenderName: "tranmission-helper",
+		SenderEmail:     "test@sender.com",
+		SenderName:      "tranmission-helper",
 	}
 	result := MailNotifier{}.GetMailConfig()
 
@@ -54,24 +54,24 @@ func TestGetMailConfigSetNonSecure(t *testing.T) {
 
 func TestSendEncrypted(t *testing.T) {
 	config := MailConfig{
-		SmtpUser: "test_user",
-		SmtpPassword: "test_password",
-		SmtpHost: "test_host",
-		SmtpPort: "1234",
+		SmtpUser:        "test_user",
+		SmtpPassword:    "test_password",
+		SmtpHost:        "test_host",
+		SmtpPort:        "1234",
 		IsNonSmtpSecure: false,
-		SenderEmail: "test@sender.com",
-		SenderName: "test-sender",
+		SenderEmail:     "test@sender.com",
+		SenderName:      "test-sender",
 	}
 	subject := "test subject"
 	message := "test message"
 	recipients := []string{"test1@email.com", "test2@email.com"}
 
-	mockSendMail := func (addr string, auth smtp.Auth, from string, to []string, msg []byte) error {
+	mockSendMail := func(addr string, auth smtp.Auth, from string, to []string, msg []byte) error {
 		wantMsg := []byte("From: test-sender <test@sender.com>\r\n" +
-		"To: test1@email.com,test2@email.com\r\n" +
-		"Subject: test subject\r\n" +
-		"\r\n" +
-		"test message")
+			"To: test1@email.com,test2@email.com\r\n" +
+			"Subject: test subject\r\n" +
+			"\r\n" +
+			"test message")
 		wantAuth := smtp.PlainAuth("", "test_user", "test_password", "test_host")
 
 		assert.Equal(t, "test_host:1234", addr)
@@ -88,19 +88,19 @@ func TestSendEncrypted(t *testing.T) {
 
 func TestSendUnencrypted(t *testing.T) {
 	config := MailConfig{
-		SmtpUser: "test_user",
-		SmtpPassword: "test_password",
-		SmtpHost: "test_host",
-		SmtpPort: "1234",
+		SmtpUser:        "test_user",
+		SmtpPassword:    "test_password",
+		SmtpHost:        "test_host",
+		SmtpPort:        "1234",
 		IsNonSmtpSecure: true,
-		SenderEmail: "test@sender.com",
-		SenderName: "test-sender",
+		SenderEmail:     "test@sender.com",
+		SenderName:      "test-sender",
 	}
 	subject := "test subject"
 	message := "test message"
 	recipients := []string{"test1@email.com", "test2@email.com"}
 
-	mockSendMail := func (addr string, auth smtp.Auth, from string, to []string, msg []byte) error {
+	mockSendMail := func(addr string, auth smtp.Auth, from string, to []string, msg []byte) error {
 		wantAuth := UnencryptedAuth{smtp.PlainAuth("", "test_user", "test_password", "test_host")}
 		assert.Equal(t, wantAuth, auth)
 

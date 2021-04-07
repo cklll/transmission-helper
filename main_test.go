@@ -1,9 +1,9 @@
 package main
 
 import (
-    "testing"
-    "strings"
-		"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
+	"strings"
+	"testing"
 )
 
 func TestParseRawOutput(t *testing.T) {
@@ -24,7 +24,7 @@ Sum:           7.63 GB               0.0     0.0
 }
 
 func TestParseRawOutputNoTorrent(t *testing.T) {
-// TODO: this is not a real output, I will update later
+	// TODO: this is not a real output, I will update later
 	output := strings.Trim(`
 ID     Done       Have  ETA           Up    Down  Ratio  Status       Name
 Sum:           7.63 GB               0.0     0.0
