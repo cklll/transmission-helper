@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/smtp"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -13,6 +14,8 @@ type TorrentState struct {
 	Name string
 	Done string
 }
+
+var execCommand = exec.Command
 
 // =========
 // ID     Done       Have  ETA           Up    Down  Ratio  Status       Name
@@ -45,20 +48,22 @@ func parseRawOutput(output string) []TorrentState {
 	return states
 }
 
-// TODO
-// func getRawTorrentStates() string {
-// 	auth_credentials := ""
+func getTranmissionRemoteListOutput() string {
+	username := os.Getenv("TH_REMOTE_USERNAME")
+	password := os.Getenv("TH_REMOTE_PASSWORD")
+	auth := fmt.Sprintf("%v:%v", username, password)
 
-// 	cmd := exec.Command("transmission-remote", "--auth", auth_credentials, "-l")
-// 	stdout, err := cmd.Output()
+	// this assume we always need auth. It may not always be the case
+	cmd := execCommand("transmission-remote", "--auth", auth, "-l")
+	stdout, err := cmd.Output()
 
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 		panic("Cannot get output from transmission-remote.")
-// 	}
+	if err != nil {
+		log.Println(err.Error())
+		panic("Cannot get output from transmission-remote.")
+	}
 
-// 	return string(stdout)
-// }
+	return string(stdout)
+}
 
 func filterFinishedTorrents(states []TorrentState) []TorrentState {
 	result := []TorrentState{}
@@ -115,14 +120,7 @@ func main() {
 		}
 	}()
 
-	// output := getRawTorrentStates()
-	output := strings.Trim(`
-ID     Done       Have  ETA           Up    Down  Ratio   Status       Name
-   29    53%    3.42 GB  Unknown      0.0     0.0    0.0  Idle         test
-   30    n/a    4.21 GB  Done         0.0     0.0   None  Stopped      test 2
-   31    n/a    4.21 GB  Done         0.0     0.0   None  Finished     test 3
-Sum:           7.63 GB               0.0     0.0
-`, "\n")
+	output := getTranmissionRemoteListOutput()
 
 	torrentStates := parseRawOutput(output)
 	log.Printf("Found %v torrents", len(torrentStates))
