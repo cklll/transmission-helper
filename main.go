@@ -34,7 +34,9 @@ func parseRawOutput(output string) []TorrentState {
 	headerLine := lines[0]
 	namePosition := strings.Index(headerLine, "Name")
 
-	lines = lines[1 : len(lines)-1]
+	// 2nd last line is "Sum: xxxx"
+	// last line is empty string
+	lines = lines[1 : len(lines)-2]
 	for _, line := range lines {
 		parts := strings.Fields(line)
 
@@ -59,7 +61,7 @@ func getTranmissionRemoteListOutput() string {
 
 	if err != nil {
 		log.Println(err.Error())
-		panic("Cannot get output from transmission-remote.")
+		panic("Cannot get output from transmission-remote. Please check the environment variables for TH_REMOTE_USERNAME and TH_REMOTE_PASSWORD.")
 	}
 
 	return string(stdout)

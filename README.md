@@ -3,10 +3,22 @@ A tool that automate my routine operations with [transmission](https://github.co
 * ✅ Send an email notification to you when a download completes
 * Remove seed when a download completes
 
-## Build
+## Build & Example Usage
 ```sh
 go build
+env GOOS=linux GOARCH=arm GOARM=5 go build # I need build for my raspberry pi
 # generate a transmission-helper binary
+```
+
+```
+TH_SMTP_USER= \
+TH_SMTP_PASS= \
+TH_SMTP_HOST= \
+TH_SMTP_PORT= \
+TH_SMTP_SENDER_EMAIL= \
+TH_REMOTE_USERNAME= \
+TH_REMOTE_PASSWORD= \
+./transmission-helper
 ```
 
 ## Development
