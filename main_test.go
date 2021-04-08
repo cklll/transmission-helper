@@ -1,13 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"os/exec"
+	"strconv"
 	"strings"
 	"testing"
-	"os/exec"
-	"os"
-	"strconv"
-	"fmt"
 )
 
 // https://stackoverflow.com/a/45803548/2691976
@@ -16,6 +16,7 @@ var mockedExitStatus = 0
 var mockedStdout string
 var gotExecCommandCommand string
 var gotExecCommandArgs []string
+
 func fakeExecCommand(command string, args ...string) *exec.Cmd {
 	gotExecCommandCommand = command
 	gotExecCommandArgs = args
@@ -25,13 +26,13 @@ func fakeExecCommand(command string, args ...string) *exec.Cmd {
 	cmd := exec.Command(os.Args[0], cs...)
 	es := strconv.Itoa(mockedExitStatus)
 	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1",
-			"STDOUT=" + mockedStdout,
-			"EXIT_STATUS=" + es}
+		"STDOUT=" + mockedStdout,
+		"EXIT_STATUS=" + es}
 	return cmd
 }
 func TestExecCommandHelper(t *testing.T) {
 	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
-			return
+		return
 	}
 	fmt.Fprintf(os.Stdout, os.Getenv("STDOUT"))
 	i, _ := strconv.Atoi(os.Getenv("EXIT_STATUS"))
