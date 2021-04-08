@@ -16,8 +16,8 @@ Sum:           7.63 GB               0.0     0.0
 
 	torrentStates := parseRawOutput(output)
 	want := []TorrentState{
-		{"test", "Idle"},
-		{"test 2", "Stopped"},
+		{"29", "test", "53%"},
+		{"30", "test 2", "n/a"},
 	}
 
 	assert.Equal(t, want, torrentStates)
@@ -38,17 +38,16 @@ Sum:           7.63 GB               0.0     0.0
 
 func TestFilterFinishedTorrents(t *testing.T) {
 	input := []TorrentState{
-		{"idle seed", "Idle"},
-		{"stopped 1", "Stopped"},
-		{"stopped 2", "Stopped"},
-		{"Seeding 1", "Seeding"},
-		{"Seeding 2", "Seeding"},
-		{"Finished 1", "Finished"},
+		{"1", "Seed 1", "53%"},
+		{"2", "Seed 2", "n/a"},
+		{"3", "Seed 3", "100%"},
+		{"4", "Seed 4", "100%"},
+		{"5", "Seed 5", "100%"},
 	}
 	want := []TorrentState{
-		{"Seeding 1", "Seeding"},
-		{"Seeding 2", "Seeding"},
-		{"Finished 1", "Finished"},
+		{"3", "Seed 3", "100%"},
+		{"4", "Seed 4", "100%"},
+		{"5", "Seed 5", "100%"},
 	}
 
 	result := filterFinishedTorrents(input)
@@ -58,9 +57,8 @@ func TestFilterFinishedTorrents(t *testing.T) {
 
 func TestFilterFinishedTorrentsNoneFinished(t *testing.T) {
 	input := []TorrentState{
-		{"idle seed", "Idle"},
-		{"stopped 1", "Stopped"},
-		{"stopped 2", "Stopped"},
+		{"1", "Seed 1", "53%"},
+		{"2", "Seed 2", "n/a"},
 	}
 	want := []TorrentState{}
 

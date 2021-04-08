@@ -9,8 +9,9 @@ import (
 )
 
 type TorrentState struct {
-	Name   string
-	Status string
+	Id   string
+	Name string
+	Done string
 }
 
 // =========
@@ -19,25 +20,26 @@ type TorrentState struct {
 //   30    n/a    4.21 GB  Done         0.0     0.0   None  Stopped      test 2
 // Sum:           7.63 GB               0.0     0.0
 // =========
-// the status and name should start at the same character as the header
-// so we get the start position of "Status" and "Name" and use it to retrieve the string
+// ID & Done are the 1st and 2nd parts of the line
+// For seed name, we note that the header "Name" and the actual seed name start at the same character
+// so we collect all characters after that position
 func parseRawOutput(output string) []TorrentState {
 	states := []TorrentState{}
 
 	lines := strings.Split(output, "\n")
+
 	headerLine := lines[0]
-	statusPosition := strings.Index(headerLine, "Status")
 	namePosition := strings.Index(headerLine, "Name")
 
 	lines = lines[1 : len(lines)-1]
 	for _, line := range lines {
-		status := line[statusPosition:namePosition]
-		status = strings.Trim(status, " ")
+		parts := strings.Fields(line)
 
+		id := parts[0]
+		done := parts[1]
 		name := line[namePosition:]
-		name = strings.Trim(name, " ")
 
-		states = append(states, TorrentState{name, status})
+		states = append(states, TorrentState{Id: id, Name: name, Done: done})
 	}
 
 	return states
@@ -59,33 +61,15 @@ func parseRawOutput(output string) []TorrentState {
 // }
 
 func filterFinishedTorrents(states []TorrentState) []TorrentState {
-	stateMap := map[string][]TorrentState{}
+	result := []TorrentState{}
 
 	for _, state := range states {
-		stateMap[state.Status] = append(stateMap[state.Status], state)
-	}
-
-	result := []TorrentState{}
-	for status, states := range stateMap {
-		// !!!!! FIXME !!!!
-		// TODO: Need to fix, when in "seeding to 0 of 0 peers"
-		// the output is
-		// 30   100%    5.39 GB  Done         0.0     0.0    0.0  Idle
-		// We MUST use "Done: 100%" to check
-
-		// TODO: haven't manually verified the keywords
-		// maybe instead check "Done" percentage
-		// "Finished" - https://github.com/transmission/transmission/blob/8566df069899ce8923463cadeb0ff66d4544991a/utils/remote.c#L844
-		// "Seeding" - https://github.com/transmission/transmission/blob/8566df069899ce8923463cadeb0ff66d4544991a/utils/remote.c#L898
-		if status == "Finished" {
-			result = append(result, states...)
-		} else if status == "Seeding" {
-			result = append(result, states...)
+		if state.Done == "100%" {
+			result = append(result, state)
 		}
-
-		// TODO: want to test this but not sure how
-		log.Printf("Found %v torrents with %v status.", len(states), status)
 	}
+
+	log.Printf("%v of %v torrents are finished.", len(result), len(states))
 
 	return result
 }
@@ -101,7 +85,7 @@ func notify(finishedTorrentStates []TorrentState) {
 	subject := fmt.Sprintf("[transmission-helper] %v torrents completed.", len(finishedTorrentStates))
 	message := ""
 	for _, state := range finishedTorrentStates {
-		message += fmt.Sprintf("%v: %v \r\n", state.Status, state.Name)
+		message += fmt.Sprintf("%v: %v \r\n", state.Done, state.Name)
 	}
 
 	mailNotifier := MailNotifier{smtp.SendMail}
@@ -113,6 +97,10 @@ func notify(finishedTorrentStates []TorrentState) {
 	} else {
 		log.Printf("Sent emails to %v recipients.", len(recipients))
 	}
+}
+
+func delete(torrentStates []TorrentState) {
+	// transmission-remote --auth <user>:<password> -t<ID> -r
 }
 
 // TODO: TEST CASE!!!!
