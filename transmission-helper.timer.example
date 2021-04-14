@@ -1,0 +1,10 @@
+[Unit]
+Description=Run transmission-helper every night
+
+[Timer]
+Unit=transmission-helper.service
+OnCalendar=*-*-* 19:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
