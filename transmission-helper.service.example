@@ -10,6 +10,7 @@ Environment="TH_SMTP_PORT"
 Environment="TH_SMTP_SENDER_EMAIL"
 Environment="TH_REMOTE_USERNAME"
 Environment="TH_REMOTE_PASSWORD"
+Environment="TH_NOTIFY_EMAILS"
 
 [Install]
 WantedBy=multi-user.target
