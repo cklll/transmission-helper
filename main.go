@@ -76,7 +76,7 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 		}
 	}
 
-	log.Printf("%v of %v torrents are finished.", len(result), len(states))
+	log.Printf("%v of %v torrents are finished.\n", len(result), len(states))
 
 	return result
 }
@@ -84,7 +84,7 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 // TODO: TEST CASE!!!!
 // Need refactoring to make this testable
 func notify(finishedTorrentStates []TorrentState) {
-	log.Printf("Sending emails with %v finished torrents.", len(finishedTorrentStates))
+	log.Printf("Sending emails with %v finished torrents.\n", len(finishedTorrentStates))
 
 	recipientsString := os.Getenv("TH_NOTIFY_EMAILS")
 	recipients := strings.Split(recipientsString, ",")
@@ -99,15 +99,29 @@ func notify(finishedTorrentStates []TorrentState) {
 	mailConfig := mailNotifier.GetMailConfig()
 	err := mailNotifier.Send(mailConfig, subject, message, recipients)
 	if err != nil {
-		log.Println("Failed to send emails.")
-		log.Println(err)
+		log.Printf("Failed to send emails. Error: %v\n", err.Error())
 	} else {
-		log.Printf("Sent emails to %v recipients.", len(recipients))
+		log.Printf("Sent emails to %v recipients.\n", len(recipients))
 	}
 }
 
-func delete(torrentStates []TorrentState) {
-	// transmission-remote --auth <user>:<password> -t<ID> -r
+func delete(states []TorrentState) {
+	username := os.Getenv("TH_REMOTE_USERNAME")
+	password := os.Getenv("TH_REMOTE_PASSWORD")
+	auth := fmt.Sprintf("%v:%v", username, password)
+
+	for _, state := range states {
+		deleteArg := fmt.Sprintf("-t%v", state.Id)
+		// transmission-remote --auth <user>:<password> -t<ID> -r
+		cmd := execCommand("transmission-remote", "--auth", auth, deleteArg, "-r")
+		_, err := cmd.Output()
+
+		if err != nil {
+			log.Printf("Cannot delete torrent ID %v. Error: %v\n", state.Id, err.Error())
+		} else {
+			log.Printf("Delete torrent %v\n.", state.Name)
+		}
+	}
 }
 
 // TODO: TEST CASE!!!!
@@ -125,7 +139,7 @@ func main() {
 	output := getTranmissionRemoteListOutput()
 
 	torrentStates := parseRawOutput(output)
-	log.Printf("Found %v torrents", len(torrentStates))
+	log.Printf("Found %v torrents\n", len(torrentStates))
 
 	finishedTorrents := filterFinishedTorrents(torrentStates)
 
@@ -134,5 +148,5 @@ func main() {
 	}
 
 	notify(finishedTorrents)
-	// delete(finishedTorrents)
+	delete(finishedTorrents)
 }

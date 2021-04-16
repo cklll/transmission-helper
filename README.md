@@ -7,8 +7,8 @@ A tool that automate my routine operations with [transmission](https://github.co
 ### Build
 ```sh
 go build
-env GOOS=linux GOARCH=arm GOARM=5 go build # I need build for my raspberry pi
-# generate a transmission-helper binary
+env GOOS=linux GOARCH=arm GOARM=5 go build # for my raspberry pi
+# output a transmission-helper binary
 ```
 
 ### Run binary
