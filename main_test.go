@@ -40,34 +40,36 @@ func TestExecCommandHelper(t *testing.T) {
 }
 
 func TestParseRawOutput(t *testing.T) {
-	// trim prefix only as it output ends with new line
-	output := strings.TrimPrefix(`
+	assertTorrentStates := func(t testing.TB, want, got []TorrentState) {
+		assert.Equal(t, want, got)
+	}
+
+	t.Run("when multiple torrents", func(t *testing.T) {
+		output := strings.TrimPrefix(`
 ID     Done       Have  ETA           Up    Down  Ratio  Status       Name
   29    53%    3.42 GB  Unknown      0.0     0.0    0.0  Idle         test
   30    n/a    4.21 GB  Done         0.0     0.0   None  Stopped      test 2
 Sum:           7.63 GB               0.0     0.0
 `, "\n")
 
-	got := parseRawOutput(output)
-	want := []TorrentState{
-		{"29", "test", "53%"},
-		{"30", "test 2", "n/a"},
-	}
+		got := parseRawOutput(output)
+		want := []TorrentState{
+			{"29", "test", "53%"},
+			{"30", "test 2", "n/a"},
+		}
+		assertTorrentStates(t, want, got)
+	})
 
-	assert.Equal(t, want, got)
-}
-
-func TestParseRawOutputNoTorrent(t *testing.T) {
-	// TODO: this is not a real output, I will update later
-	output := strings.TrimPrefix(`
+	t.Run("when no torrent", func(t *testing.T) {
+		output := strings.TrimPrefix(`
 ID     Done       Have  ETA           Up    Down  Ratio  Status       Name
-Sum:           7.63 GB               0.0     0.0
+Sum:              None               0.0     0.0
 `, "\n")
 
-	torrentStates := parseRawOutput(output)
-	want := []TorrentState{}
-
-	assert.Equal(t, want, torrentStates)
+		got := parseRawOutput(output)
+		want := []TorrentState{}
+		assertTorrentStates(t, want, got)
+	})
 }
 
 func TestFilterFinishedTorrents(t *testing.T) {
@@ -84,9 +86,9 @@ func TestFilterFinishedTorrents(t *testing.T) {
 		{"5", "Seed 5", "100%"},
 	}
 
-	result := filterFinishedTorrents(input)
+	got := filterFinishedTorrents(input)
 
-	assert.ElementsMatch(t, want, result)
+	assert.ElementsMatch(t, want, got)
 }
 
 func TestFilterFinishedTorrentsNoneFinished(t *testing.T) {
