@@ -73,34 +73,38 @@ Sum:              None               0.0     0.0
 }
 
 func TestFilterFinishedTorrents(t *testing.T) {
-	input := []TorrentState{
-		{"1", "Seed 1", "53%"},
-		{"2", "Seed 2", "n/a"},
-		{"3", "Seed 3", "100%"},
-		{"4", "Seed 4", "100%"},
-		{"5", "Seed 5", "100%"},
-	}
-	want := []TorrentState{
-		{"3", "Seed 3", "100%"},
-		{"4", "Seed 4", "100%"},
-		{"5", "Seed 5", "100%"},
+	assertTorrentStates := func(t testing.TB, want, got []TorrentState) {
+		assert.Equal(t, want, got)
 	}
 
-	got := filterFinishedTorrents(input)
+	t.Run("when have finished torrents", func(t *testing.T) {
+		input := []TorrentState{
+			{"1", "Seed 1", "53%"},
+			{"2", "Seed 2", "n/a"},
+			{"3", "Seed 3", "100%"},
+			{"4", "Seed 4", "100%"},
+			{"5", "Seed 5", "100%"},
+		}
+		got := filterFinishedTorrents(input)
+		want := []TorrentState{
+			{"3", "Seed 3", "100%"},
+			{"4", "Seed 4", "100%"},
+			{"5", "Seed 5", "100%"},
+		}
 
-	assert.ElementsMatch(t, want, got)
-}
+		assertTorrentStates(t, want, got)
+	})
 
-func TestFilterFinishedTorrentsNoneFinished(t *testing.T) {
-	input := []TorrentState{
-		{"1", "Seed 1", "53%"},
-		{"2", "Seed 2", "n/a"},
-	}
-	want := []TorrentState{}
+	t.Run("when don't have finished torrents", func(t *testing.T) {
+		input := []TorrentState{
+			{"1", "Seed 1", "53%"},
+			{"2", "Seed 2", "n/a"},
+		}
+		got := filterFinishedTorrents(input)
+		want := []TorrentState{}
 
-	result := filterFinishedTorrents(input)
-
-	assert.Equal(t, want, result)
+		assertTorrentStates(t, want, got)
+	})
 }
 
 func TestGetTranmissionRemoteListOutput(t *testing.T) {
