@@ -4,7 +4,7 @@ A tool that automate my routine operations with [transmission](https://github.co
 * ✅ Remove seed when a download completes
 
 ## Warning
-This is project is still work in progress. I am using this project to learn Go so you may find the code is not following Go convention
+This project is still work in progress. I am using this project to learn Go so you may find some of the codes not following Go convention.
 
 ## Build & Example Usage
 ### Build
