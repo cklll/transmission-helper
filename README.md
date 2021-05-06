@@ -1,7 +1,10 @@
 # Transmission Helper
 A tool that automate my routine operations with [transmission](https://github.com/transmission/transmission).
 * ✅ Send an email notification to you when a download completes
-* Remove seed when a download completes
+* ✅ Remove seed when a download completes
+
+## Warning
+This is project is still work in progress. I am using this project to learn Go so you may find the code is not following Go convention
 
 ## Build & Example Usage
 ### Build
@@ -22,6 +25,11 @@ TH_NOTIFY_EMAILS= \
 TH_REMOTE_USERNAME= \
 TH_REMOTE_PASSWORD= \
 ./transmission-helper
+```
+
+Note: I am planning to change the interface to
+```
+./transmission-helper --config-path=/path/to/config.json
 ```
 
 ### Systemd
