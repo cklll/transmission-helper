@@ -61,7 +61,7 @@ func getTranmissionRemoteListOutput(appConfig ApplicationConfig) string {
 
 	if err != nil {
 		log.Println(err.Error())
-		// panic("Cannot get output from transmission-remote. Make sure the transmission-remote's username and password are correct.")
+		panic("Cannot get output from transmission-remote. Make sure the transmission-remote's username and password are correct.")
 	}
 
 	return string(stdout)
@@ -120,9 +120,6 @@ func delete(appConfig ApplicationConfig, states []TorrentState) {
 			log.Printf("Delete torrent %v\n.", state.Name)
 		}
 	}
-}
-
-func init() {
 }
 
 func main() {

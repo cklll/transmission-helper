@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"log"
 	"testing"
-	"io/ioutil"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGetApplicationConfig(t *testing.T) {

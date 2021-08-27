@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	"io/ioutil"
+	"log"
 
 	"gopkg.in/yaml.v2"
 )
@@ -13,11 +13,11 @@ type ApplicationConfig struct {
 		Password string
 	} `yaml:"transmission_remote"`
 	Smtp struct {
-		Host string
-		Port string
-		NonSecure string `yaml:"non_secure"`
-		User string
-		Pass string
+		Host        string
+		Port        string
+		NonSecure   string `yaml:"non_secure"`
+		User        string
+		Pass        string
 		SenderEmail string `yaml:"sender_email"`
 	}
 
