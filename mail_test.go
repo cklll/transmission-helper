@@ -3,51 +3,22 @@ package main
 import (
 	"github.com/stretchr/testify/assert"
 	"net/smtp"
-	"os"
 	"testing"
 )
 
 func TestGetMailConfig(t *testing.T) {
-	os.Clearenv()
-	os.Setenv("TH_SMTP_USER", "test_user")
-	os.Setenv("TH_SMTP_PASS", "test_password")
-	os.Setenv("TH_SMTP_HOST", "test_host")
-	os.Setenv("TH_SMTP_PORT", "1234")
-	os.Setenv("TH_SMTP_SENDER_EMAIL", "test@sender.com")
+	fakeAppConfig := getApplicationConfig("testdata/config/example.yaml")
 
 	want := MailConfig{
 		SmtpUser:        "test_user",
-		SmtpPassword:    "test_password",
+		SmtpPassword:    "test_pass",
 		SmtpHost:        "test_host",
-		SmtpPort:        "1234",
-		IsNonSmtpSecure: false,
-		SenderEmail:     "test@sender.com",
-		SenderName:      "tranmission-helper",
-	}
-	result := MailNotifier{}.GetMailConfig()
-
-	assert.Equal(t, want, result)
-}
-
-func TestGetMailConfigSetNonSecure(t *testing.T) {
-	os.Clearenv()
-	os.Setenv("TH_SMTP_USER", "test_user")
-	os.Setenv("TH_SMTP_PASS", "test_password")
-	os.Setenv("TH_SMTP_HOST", "test_host")
-	os.Setenv("TH_SMTP_PORT", "1234")
-	os.Setenv("TH_SMTP_SENDER_EMAIL", "test@sender.com")
-	os.Setenv("TH_SMTP_NON_SECURE", "1")
-
-	want := MailConfig{
-		SmtpUser:        "test_user",
-		SmtpPassword:    "test_password",
-		SmtpHost:        "test_host",
-		SmtpPort:        "1234",
+		SmtpPort:        "1025",
 		IsNonSmtpSecure: true,
-		SenderEmail:     "test@sender.com",
+		SenderEmail:     "test_sender@email.com",
 		SenderName:      "tranmission-helper",
 	}
-	result := MailNotifier{}.GetMailConfig()
+	result := MailNotifier{}.GetMailConfig(fakeAppConfig)
 
 	assert.Equal(t, want, result)
 }

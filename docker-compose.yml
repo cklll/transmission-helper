@@ -9,13 +9,7 @@ services:
     depends_on:
       - mailhog
     environment:
-      TH_SMTP_HOST: mailhog
-      TH_SMTP_PORT: 1025
-      TH_SMTP_NON_SECURE: 1
-      TH_SMTP_USER: ""
-      TH_SMTP_PASS: ""
-      TH_SMTP_SENDER_EMAIL: test_sender@email.com
-      TH_NOTIFY_EMAILS: test_receiver1@example.com,test_receiver2@example.com
+      TH_CONFIG_PATH: "/usr/src/transmission-helper/config.yaml"
     volumes:
       - .:/usr/src/transmission-helper
 

@@ -56,7 +56,10 @@ go fmt .
 ```
 
 ## TODO
-* (v2 config) Allow user to configure config. See [Approach #1](https://stackoverflow.com/a/35419545)
+* Include non-completed torrents
+  * Ideally, we can set a frequent cron job (e.g. 10 minutes) to report completed torrents as soon as it completes.
+  * But if none of the torrents completed, it also shouldn't report in-progress torrents every time, but after a certain interval.
+  * Note: We can control that interval in the config file. Then perhaps write to a temp file (`~/.transmission-helper/last_notification_time.txt`, note: use `os.UserHomeDir()`) with last sent notification time.
 * Support remote host
-* Add back important tests (marked as TODO)
 * Refactor transmission-remote codes to separate package
+* Figure out if transmission-remote can output JSON

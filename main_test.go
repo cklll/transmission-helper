@@ -111,16 +111,13 @@ func TestGetTranmissionRemoteListOutput(t *testing.T) {
 	oldExecCommand := execCommand
 	defer func() { execCommand = oldExecCommand }()
 
-	os.Clearenv()
-	os.Setenv("TH_REMOTE_USERNAME", "test_user")
-	os.Setenv("TH_REMOTE_PASSWORD", "test_password")
-
+	appConfig := getApplicationConfig("./testdata/config/example.yaml")
 	mockedStdout = "mocked stdout"
 	execCommand = fakeExecCommand
-	gotStdout := getTranmissionRemoteListOutput()
+	gotStdout := getTranmissionRemoteListOutput(appConfig)
 
 	assert.Equal(t, "transmission-remote", gotExecCommandCommand)
-	assert.Equal(t, []string{"--auth", "test_user:test_password", "-l"}, gotExecCommandArgs)
+	assert.Equal(t, []string{"--auth", "test_tr_user:test_tr_password", "-l"}, gotExecCommandArgs)
 	assert.Equal(t, "mocked stdout", gotStdout)
 }
 
@@ -128,27 +125,20 @@ func TestNotify(t *testing.T) {
 	// TODO
 }
 
-func TestMain(t *testing.T) {
-	// TODO
-}
-
 func TestDelete(t *testing.T) {
 	oldExecCommand := fakeExecCommand
 	defer func() { execCommand = oldExecCommand }()
 
-	os.Clearenv()
-	os.Setenv("TH_REMOTE_USERNAME", "test_user")
-	os.Setenv("TH_REMOTE_PASSWORD", "test_password")
-
+	appConfig := getApplicationConfig("./testdata/config/example.yaml")
 	states := []TorrentState{
 		{"1", "Seed 1", "100%"},
 		{"2", "Seed 2", "100%"},
 	}
 
 	execCommand = fakeExecCommand
-	delete(states)
+	delete(appConfig, states)
 
 	// TODO: not very nice. We only asserted the 2nd cmd call
 	assert.Equal(t, "transmission-remote", gotExecCommandCommand)
-	assert.Equal(t, []string{"--auth", "test_user:test_password", "-t2", "-r"}, gotExecCommandArgs)
+	assert.Equal(t, []string{"--auth", "test_tr_user:test_tr_password", "-t2", "-r"}, gotExecCommandArgs)
 }
