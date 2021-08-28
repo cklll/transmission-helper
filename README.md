@@ -46,4 +46,3 @@ go fmt .
   * Note: We can control that interval in the config file. Then perhaps write to a temp file (`~/.transmission-helper/last_notification_time.txt`, note: use `os.UserHomeDir()`) with last sent notification time.
 * Support remote host
 * Refactor transmission-remote codes to separate package
-* Figure out if transmission-remote can output JSON, so I don't rely on the output format
