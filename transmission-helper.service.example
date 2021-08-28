@@ -3,14 +3,7 @@ Description=transmission-helper service
 
 [Service]
 ExecStart=/path/to/transmission-helper
-Environment="TH_SMTP_USER"
-Environment="TH_SMTP_PASS"
-Environment="TH_SMTP_HOST"
-Environment="TH_SMTP_PORT"
-Environment="TH_SMTP_SENDER_EMAIL"
-Environment="TH_REMOTE_USERNAME"
-Environment="TH_REMOTE_PASSWORD"
-Environment="TH_NOTIFY_EMAILS"
+Environment="TH_CONFIG_PATH=/path/to/config"
 
 [Install]
 WantedBy=multi-user.target

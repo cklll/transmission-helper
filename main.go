@@ -50,9 +50,9 @@ func parseRawOutput(output string) []TorrentState {
 	return states
 }
 
-func getTranmissionRemoteListOutput() string {
-	username := os.Getenv("TH_REMOTE_USERNAME")
-	password := os.Getenv("TH_REMOTE_PASSWORD")
+func getTranmissionRemoteListOutput(appConfig ApplicationConfig) string {
+	username := appConfig.TransmissionRemote.Username
+	password := appConfig.TransmissionRemote.Password
 	auth := fmt.Sprintf("%v:%v", username, password)
 
 	// this assume we always need auth. It may not always be the case
@@ -61,7 +61,7 @@ func getTranmissionRemoteListOutput() string {
 
 	if err != nil {
 		log.Println(err.Error())
-		panic("Cannot get output from transmission-remote. Please check the environment variables for TH_REMOTE_USERNAME and TH_REMOTE_PASSWORD.")
+		panic("Cannot get output from transmission-remote. Make sure the transmission-remote's username and password are correct.")
 	}
 
 	return string(stdout)
@@ -83,12 +83,10 @@ func filterFinishedTorrents(states []TorrentState) []TorrentState {
 
 // TODO: TEST CASE!!!!
 // Need refactoring to make this testable
-func notify(finishedTorrentStates []TorrentState) {
+func notify(appConfig ApplicationConfig, finishedTorrentStates []TorrentState) {
 	log.Printf("Sending emails with %v finished torrents.\n", len(finishedTorrentStates))
 
-	recipientsString := os.Getenv("TH_NOTIFY_EMAILS")
-	recipients := strings.Split(recipientsString, ",")
-
+	recipients := appConfig.EmailRecipients
 	subject := fmt.Sprintf("[transmission-helper] %v torrents completed.", len(finishedTorrentStates))
 	message := ""
 	for _, state := range finishedTorrentStates {
@@ -96,7 +94,7 @@ func notify(finishedTorrentStates []TorrentState) {
 	}
 
 	mailNotifier := MailNotifier{smtp.SendMail}
-	mailConfig := mailNotifier.GetMailConfig()
+	mailConfig := mailNotifier.GetMailConfig(appConfig)
 	err := mailNotifier.Send(mailConfig, subject, message, recipients)
 	if err != nil {
 		log.Printf("Failed to send emails. Error: %v\n", err.Error())
@@ -105,9 +103,9 @@ func notify(finishedTorrentStates []TorrentState) {
 	}
 }
 
-func delete(states []TorrentState) {
-	username := os.Getenv("TH_REMOTE_USERNAME")
-	password := os.Getenv("TH_REMOTE_PASSWORD")
+func delete(appConfig ApplicationConfig, states []TorrentState) {
+	username := appConfig.TransmissionRemote.Username
+	password := appConfig.TransmissionRemote.Password
 	auth := fmt.Sprintf("%v:%v", username, password)
 
 	for _, state := range states {
@@ -124,7 +122,6 @@ func delete(states []TorrentState) {
 	}
 }
 
-// TODO: TEST CASE!!!!
 func main() {
 	log.Println("tranmission-helper started.")
 
@@ -136,7 +133,9 @@ func main() {
 		}
 	}()
 
-	output := getTranmissionRemoteListOutput()
+	appConfig := getApplicationConfig(os.Getenv("TH_CONFIG_PATH"))
+
+	output := getTranmissionRemoteListOutput(appConfig)
 
 	torrentStates := parseRawOutput(output)
 	log.Printf("Found %v torrents\n", len(torrentStates))
@@ -147,6 +146,6 @@ func main() {
 		return
 	}
 
-	notify(finishedTorrents)
-	delete(finishedTorrents)
+	notify(appConfig, finishedTorrents)
+	delete(appConfig, finishedTorrents)
 }

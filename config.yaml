@@ -1,0 +1,16 @@
+---
+transmission_remote:
+  username: tr_user
+  password: tr_password
+
+smtp:
+  host: mailhog
+  port: "1025"
+  non_secure: "1"
+  user: ""
+  pass: ""
+  sender_email: test_sender@email.com
+
+email_recipients:
+  - test_receiver1@example.com
+  - test_receiver2@example.com

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/smtp"
-	"os"
 	"strings"
 )
 
@@ -33,15 +32,14 @@ type MailNotifier struct {
 	SendMail func(addr string, auth smtp.Auth, from string, to []string, msg []byte) error
 }
 
-func (notifier MailNotifier) GetMailConfig() MailConfig {
-	_, isNonSmtpSecure := os.LookupEnv("TH_SMTP_NON_SECURE")
+func (notifier MailNotifier) GetMailConfig(appConfig ApplicationConfig) MailConfig {
 	return MailConfig{
-		SmtpUser:        os.Getenv("TH_SMTP_USER"),
-		SmtpPassword:    os.Getenv("TH_SMTP_PASS"),
-		SmtpHost:        os.Getenv("TH_SMTP_HOST"),
-		SmtpPort:        os.Getenv("TH_SMTP_PORT"),
-		IsNonSmtpSecure: isNonSmtpSecure,
-		SenderEmail:     os.Getenv("TH_SMTP_SENDER_EMAIL"),
+		SmtpUser:        appConfig.Smtp.User,
+		SmtpPassword:    appConfig.Smtp.Pass,
+		SmtpHost:        appConfig.Smtp.Host,
+		SmtpPort:        appConfig.Smtp.Port,
+		IsNonSmtpSecure: appConfig.Smtp.NonSecure == "1",
+		SenderEmail:     appConfig.Smtp.SenderEmail,
 		SenderName:      "tranmission-helper",
 	}
 }
