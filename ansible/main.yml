@@ -1,0 +1,4 @@
+---
+- hosts: all
+  roles:
+    - { role: systemd, tags: ["systemd"] }

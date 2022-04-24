@@ -2,8 +2,8 @@
 Description=transmission-helper service
 
 [Service]
-ExecStart=/path/to/transmission-helper
-Environment="TH_CONFIG_PATH=/path/to/config"
+ExecStart={{ th_binary_path }}
+Environment="TH_CONFIG_PATH={{ th_config_path }}"
 
 [Install]
 WantedBy=multi-user.target
