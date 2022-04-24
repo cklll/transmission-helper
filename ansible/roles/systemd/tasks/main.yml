@@ -1,0 +1,15 @@
+- name: Copy service file
+  become: true
+  template:
+    src: transmission-helper.service.j2
+    dest: "{{ service_path }}"
+  notify:
+    - Reload systemd
+
+- name: Copy timer file
+  become: true
+  template:
+    src: transmission-helper.timer.j2
+    dest: "{{ timer_path }}"
+  notify:
+    - Reload systemd

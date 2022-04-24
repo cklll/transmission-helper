@@ -39,6 +39,12 @@ You can auto-format the code by running
 go fmt .
 ```
 
+## Ansible Deployment
+Only some tasks are included because initially, I manually copied the file to the server but later I decided to user Ansible.
+```
+ansible-playbook main.yml -i inventories/home_pi
+```
+
 ## TODO
 * Include non-completed torrents
   * Ideally, we can set a frequent cron job (e.g. 10 minutes) to report completed torrents as soon as it completes.

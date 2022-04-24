@@ -1,9 +1,9 @@
 [Unit]
-Description=Run transmission-helper every night
+Description=Run transmission-helper regularly
 
 [Timer]
 Unit=transmission-helper.service
-OnCalendar=*-*-* 19:30:00
+OnCalendar={{ timer_schedule }}
 Persistent=true
 
 [Install]

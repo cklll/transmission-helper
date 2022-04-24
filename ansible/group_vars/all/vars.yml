@@ -1,0 +1,7 @@
+---
+ansible_ssh_user: pi
+th_config_path: "/home/pi/.transmission-helper/config.yaml"
+th_binary_path: "/home/pi/transmission-helper"
+service_path: "/etc/systemd/user/transmission-helper.service"
+timer_path: "/etc/systemd/user/transmission-helper.timer"
+timer_schedule: "*-*-* *:*:00"
